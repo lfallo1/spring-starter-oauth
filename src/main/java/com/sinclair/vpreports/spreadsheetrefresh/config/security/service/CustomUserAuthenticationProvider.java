@@ -21,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomUserAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
+    private LdapService ldapService;
+
+    @Autowired
     private CustomUserDetailsService userDetailsService;
 
     private static final Logger LOGGER = LogManager.getLogger(CustomUserAuthenticationProvider.class);
@@ -41,13 +44,16 @@ public class CustomUserAuthenticationProvider implements AuthenticationProvider 
             final Object password = authentication.getCredentials();
 
             //if a result was returned, check application's db for the user
-            UserPrivileges user = userDetailsService.authenticate(username.toString(), password.toString());
+            if (ldapService.authenticate(username.toString(), password.toString())) {
 
-            // if a user was returned, create a new auth object and add the UserPrivileges to the object
-            if (user != null) {
-                auth = new CustomUserPasswordAuthenticationToken(authentication.getPrincipal(),
-                        authentication.getCredentials(), user.getAuthorities());
-                auth.setUserPrivileges(user);
+                UserPrivileges user = userDetailsService.loadUserByUsername(username.toString());
+
+                // if a user was returned, create a new auth object and add the UserPrivileges to the object
+                if (user != null) {
+                    auth = new CustomUserPasswordAuthenticationToken(authentication.getPrincipal(),
+                            authentication.getCredentials(), user.getAuthorities());
+                    auth.setUserPrivileges(user);
+                }
             }
         }
 

@@ -7,7 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -43,21 +45,28 @@ public class CustomTokenEnhancer implements TokenEnhancer {
 
             final Map<String, Object> additionalInformation = new HashMap<String, Object>();
 
-            final CustomUserPasswordAuthenticationToken customToken = (CustomUserPasswordAuthenticationToken) authentication
-                    .getUserAuthentication();
-
-            // Adding customized response
-            if (customToken != null) {
-                final UserPrivileges userPrivileges = customToken.getUserPrivileges();
-                if (userPrivileges != null) {
-                    additionalInformation.put("user_details", customToken.getUserPrivileges());
-                    tempResult.setAdditionalInformation(additionalInformation);
-                }
+            TokenRequest request = authentication.getOAuth2Request().getRefreshTokenRequest();
+            if (request != null && "refresh_token".equals(request.getGrantType())) {
+                PreAuthenticatedAuthenticationToken token = (PreAuthenticatedAuthenticationToken) authentication.getUserAuthentication();
+                additionalInformation.put("user_details", (UserPrivileges) token.getPrincipal());
             } else {
-                additionalInformation.put("error", "error attaching user_details to auth");
-                tempResult.setAdditionalInformation(additionalInformation);
+                final CustomUserPasswordAuthenticationToken customToken = (CustomUserPasswordAuthenticationToken) authentication
+                        .getUserAuthentication();
+
+                // Adding customized response
+                if (customToken != null) {
+                    final UserPrivileges userPrivileges = customToken.getUserPrivileges();
+                    if (userPrivileges != null) {
+                        additionalInformation.put("user_details", customToken.getUserPrivileges());
+                    }
+                } else {
+                    additionalInformation.put("error", "error attaching user_details to auth");
+                }
             }
+
+            tempResult.setAdditionalInformation(additionalInformation);
         }
+
         OAuth2AccessToken result = tempResult;
         for (TokenEnhancer enhancer : delegates) {
             result = enhancer.enhance(result, authentication);

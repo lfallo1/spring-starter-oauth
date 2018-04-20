@@ -14,6 +14,7 @@ public class UserPrivileges implements UserDetails, Serializable {
     private static final long serialVersionUID = 1L;
     private String username;
     private String password;
+    private String alias;
     private boolean accountNonExpired;
     private boolean accountNonLocked;
     private boolean credentialsNonExpired;
@@ -43,6 +44,14 @@ public class UserPrivileges implements UserDetails, Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
     public boolean isAccountNonExpired() {

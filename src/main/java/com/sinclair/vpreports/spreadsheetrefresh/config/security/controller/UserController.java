@@ -1,7 +1,6 @@
 package com.sinclair.vpreports.spreadsheetrefresh.config.security.controller;
 
 import com.sinclair.vpreports.spreadsheetrefresh.config.security.model.CustomUserPasswordAuthenticationToken;
-import com.sinclair.vpreports.spreadsheetrefresh.config.security.model.UserPrivileges;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -30,9 +29,9 @@ public class UserController {
      * @return
      */
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<UserPrivileges> getUser(OAuth2Authentication auth) {
+    public ResponseEntity<CustomUserPasswordAuthenticationToken> getUser(OAuth2Authentication auth) {
         CustomUserPasswordAuthenticationToken token = (CustomUserPasswordAuthenticationToken) auth.getUserAuthentication();
-        return new ResponseEntity<>(token.getUserPrivileges(), HttpStatus.OK);
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
 }

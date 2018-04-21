@@ -73,8 +73,8 @@ public class OAuth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
                 .authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
                 .scopes("read", "write", "trust")
                 .secret("secret")
-                .accessTokenValiditySeconds(10)
-                .refreshTokenValiditySeconds(12000);
+                .accessTokenValiditySeconds(86400) /* 24 hours */
+                .refreshTokenValiditySeconds(1209600); /* one week */
 
     }
 
@@ -85,7 +85,8 @@ public class OAuth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
                 .tokenEnhancer(tokenEnhancer)
                 .userApprovalHandler(handler)
                 .userDetailsService(userDetailsService)
-                .authenticationManager(authenticationManagerBean);
+                .authenticationManager(authenticationManagerBean)
+                .reuseRefreshTokens(false);
     }
 
     //token store

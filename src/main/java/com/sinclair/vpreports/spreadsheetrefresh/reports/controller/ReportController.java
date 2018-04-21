@@ -25,7 +25,7 @@ public class ReportController {
     }
 
     @RequestMapping(value = "/status", method = RequestMethod.GET)
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> status() {
         return new ResponseEntity<>("RUNNING", HttpStatus.OK);
     }
